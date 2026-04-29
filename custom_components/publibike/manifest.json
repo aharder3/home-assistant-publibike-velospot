@@ -1,0 +1,12 @@
+{
+  "domain": "publibike",
+  "name": "PubliBike",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://rest.publibike.ch/v1/public/all/stations",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "",
+  "requirements": [],
+  "version": "0.19.0"
+}

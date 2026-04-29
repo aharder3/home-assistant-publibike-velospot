@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "PubliBike Stadt und Tracking-Art",
+        "description": "Wähle zuerst die Stadt. Danach kannst du entweder eine PubliBike/Velospot-Station oder eine Adresse/Koordinate als Ausgangspunkt tracken. Für mehrere Standorte die Integration mehrfach hinzufügen.",
+        "data": {
+          "city": "Stadt / Gebiet",
+          "reference_type": "Tracking-Art"
+        }
+      },
+      "station": {
+        "title": "PubliBike Station auswählen",
+        "description": "Wähle eine gezielte Station. Die Integration erstellt eine kompakte Station-Entität und eine Velo-Tabelle mit ID/Reichweite, sofern die API diese Einzelvelo-Daten liefert.",
+        "data": {
+          "station_id": "Station",
+          "location_name": "Name in Home Assistant",
+          "update_interval": "Aktualisierung in Sekunden",
+          "min_ebike_battery": "Mindestreichweite für E-Bike-Suche in km"
+        }
+      },
+      "address": {
+        "title": "Adresse oder Koordinaten als Ausgangspunkt",
+        "description": "Gib eine Adresse oder Latitude/Longitude ein. Ausgehend davon wird die nächste nutzbare Station gesucht: E-Bike mit Mindestreichweite, wenn Reichweitenwerte verfügbar sind, oder normales Bike.",
+        "data": {
+          "location_name": "Name in Home Assistant",
+          "address": "Adresse",
+          "latitude": "Latitude / Breitengrad optional",
+          "longitude": "Longitude / Längengrad optional",
+          "update_interval": "Aktualisierung in Sekunden",
+          "min_ebike_battery": "Mindestreichweite für E-Bike-Suche in km"
+        }
+      }
+    },
+    "error": {
+      "no_stations_from_api": "Die PubliBike/Velospot-API hat aktuell keine Standortliste geliefert.",
+      "no_stations_for_city": "Für diese Stadt wurden aktuell keine Standorte gefunden.",
+      "address_or_coordinates_required": "Bitte Adresse oder Latitude/Longitude eingeben.",
+      "address_not_found": "Die Adresse konnte nicht gefunden werden. Bitte genauer eingeben oder Koordinaten verwenden."
+    },
+    "abort": {
+      "already_configured": "Dieser PubliBike-Standort ist bereits eingerichtet. Für einen weiteren Standort bitte einen anderen Namen/eine andere Adresse oder Station verwenden."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "PubliBike Optionen",
+        "description": "Update-Intervall und Mindestreichweite ändern. Die Integration wird danach neu geladen.",
+        "data": {
+          "update_interval": "Aktualisierung in Sekunden",
+          "min_ebike_battery": "Mindestreichweite für E-Bike-Suche in km"
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": {
+        "name": "Aktualisieren"
+      }
+    },
+    "sensor": {
+      "location": {
+        "name": "Standort"
+      },
+      "station": {
+        "name": "Station"
+      },
+      "total_bikes": {
+        "name": "Bikes total"
+      },
+      "ebikes": {
+        "name": "E-Bikes"
+      },
+      "normal_bikes": {
+        "name": "Normale Bikes"
+      },
+      "nearest_ebike": {
+        "name": "Nächstes E-Bike"
+      },
+      "nearest_ebike_walking_distance": {
+        "name": "E-Bike Fussweg"
+      },
+      "nearest_bike": {
+        "name": "Nächstes Bike"
+      },
+      "nearest_bike_walking_distance": {
+        "name": "Bike Fussweg"
+      },
+      "api_status": {
+        "name": "API Status"
+      },
+      "nearest_ebike_total_bikes": {
+        "name": "E-Bike Station Bikes total"
+      },
+      "nearest_ebike_ebikes": {
+        "name": "E-Bike Station E-Bikes"
+      },
+      "nearest_ebike_normal_bikes": {
+        "name": "E-Bike Station normale Bikes"
+      },
+      "nearest_bike_total_bikes": {
+        "name": "Bike Station Bikes total"
+      },
+      "nearest_bike_ebikes": {
+        "name": "Bike Station E-Bikes"
+      },
+      "nearest_bike_normal_bikes": {
+        "name": "Bike Station normale Bikes"
+      },
+      "nearest_available_station": {
+        "name": "Nächste Station"
+      },
+      "vehicle_table": {
+        "name": "Velo Tabelle"
+      },
+      "nearest_ebike_station": {
+        "name": "Nächstes E-Bike"
+      },
+      "nearest_ebike_distance": {
+        "name": "E-Bike Entfernung"
+      },
+      "nearest_ebike_count": {
+        "name": "E-Bikes"
+      },
+      "nearest_ebike_table": {
+        "name": "E-Bike Tabelle"
+      },
+      "nearest_bike_station": {
+        "name": "Nächstes Bike"
+      },
+      "nearest_bike_distance": {
+        "name": "Bike Entfernung"
+      },
+      "nearest_bike_count": {
+        "name": "Normale Bikes"
+      },
+      "nearest_bike_table": {
+        "name": "Bike Tabelle"
+      },
+      "selected_ebikes": {
+        "name": "E-Bikes"
+      },
+      "selected_ebike_table": {
+        "name": "E-Bike Tabelle"
+      },
+      "selected_bikes": {
+        "name": "Normale Bikes"
+      },
+      "selected_bike_table": {
+        "name": "Bike Tabelle"
+      }
+    }
+  }
+}

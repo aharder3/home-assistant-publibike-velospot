@@ -1,0 +1,317 @@
+type: vertical-stack
+cards:
+  - type: markdown
+    content: |
+      # 🚲 PubliBike / Velospot
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: markdown
+        title: 🚴 Nächstes E-Bike
+        content: >
+          {% set ns = namespace(found=false) %}
+
+
+          {% for e in states.sensor | sort(attribute='name') %}
+            {% if e.entity_id.startswith('sensor.publibike_')
+              and (
+                e.entity_id.endswith('_ebikes')
+                or e.entity_id.endswith('_e_bikes')
+              )
+              and not e.entity_id.endswith('_normale_bikes')
+              and not e.entity_id.endswith('_bike_tabelle')
+              and not e.entity_id.endswith('_ebike_tabelle')
+              and not e.entity_id.endswith('_e_bike_tabelle')
+              and e.state not in ['unknown', 'unavailable', 'none', '']
+            %}
+
+              {% set base = e.entity_id | replace('_e_bikes', '') | replace('_ebikes', '') %}
+              {% set nearest_1 = base ~ '_naechstes_ebike' %}
+              {% set nearest_2 = base ~ '_naechstes_e_bike' %}
+              {% set table_1 = base ~ '_ebike_tabelle' %}
+              {% set table_2 = base ~ '_e_bike_tabelle' %}
+
+              {% set station =
+                state_attr(nearest_1, 'station_name')
+                or state_attr(nearest_1, 'nearest_station')
+                or state_attr(nearest_1, 'station')
+                or state_attr(nearest_2, 'station_name')
+                or state_attr(nearest_2, 'nearest_station')
+                or state_attr(nearest_2, 'station')
+                or state_attr(e.entity_id, 'station_name')
+                or state_attr(e.entity_id, 'nearest_station')
+                or state_attr(e.entity_id, 'station')
+                or state_attr(table_1, 'station_name')
+                or state_attr(table_1, 'nearest_station')
+                or state_attr(table_1, 'station')
+                or state_attr(table_2, 'station_name')
+                or state_attr(table_2, 'nearest_station')
+                or state_attr(table_2, 'station')
+              %}
+
+              {% if station in [none, '', 'unknown', 'unavailable', 'Zuhause', 'Home'] %}
+                {% set state_station = states(nearest_1) %}
+                {% if state_station in ['unknown', 'unavailable', 'none', ''] %}
+                  {% set state_station = states(nearest_2) %}
+                {% endif %}
+                {% if state_station not in ['unknown', 'unavailable', 'none', '', 'Zuhause', 'Home'] %}
+                  {% set station = state_station %}
+                {% endif %}
+              {% endif %}
+
+              {% set dist = states(base ~ '_ebike_entfernung') %}
+              {% if dist in ['unknown', 'unavailable', 'none', ''] %}
+                {% set dist = states(base ~ '_e_bike_entfernung') %}
+              {% endif %}
+
+              {% set ns.found = true %}
+
+          ### {{ station if station not in [none, '', 'unknown', 'unavailable']
+          else 'Station nicht verfügbar' }}
+
+
+          🚴 **E-Bikes:** {{ e.state }}
+
+              {% if dist not in ['unknown', 'unavailable', 'none', ''] %}
+          📍 **Entfernung:** {{ dist }} m
+              {% endif %}
+
+          ---
+            {% endif %}
+          {% endfor %}
+
+
+          {% if not ns.found %}
+
+          _Keine E-Bike-Daten gefunden._
+
+          {% endif %}
+      - type: markdown
+        title: 🚲 Nächstes Bike
+        content: >
+          {% set ns = namespace(found=false) %}
+
+
+          {% for b in states.sensor | sort(attribute='name') %}
+            {% if b.entity_id.startswith('sensor.publibike_')
+              and b.entity_id.endswith('_normale_bikes')
+              and b.state not in ['unknown', 'unavailable', 'none', '']
+            %}
+
+              {% set base = b.entity_id | replace('_normale_bikes', '') %}
+              {% set nearest = base ~ '_naechstes_bike' %}
+              {% set table = base ~ '_bike_tabelle' %}
+
+              {% set station =
+                state_attr(nearest, 'station_name')
+                or state_attr(nearest, 'nearest_station')
+                or state_attr(nearest, 'station')
+                or state_attr(b.entity_id, 'station_name')
+                or state_attr(b.entity_id, 'nearest_station')
+                or state_attr(b.entity_id, 'station')
+                or state_attr(table, 'station_name')
+                or state_attr(table, 'nearest_station')
+                or state_attr(table, 'station')
+              %}
+
+              {% if station in [none, '', 'unknown', 'unavailable', 'Zuhause', 'Home'] %}
+                {% set state_station = states(nearest) %}
+                {% if state_station not in ['unknown', 'unavailable', 'none', '', 'Zuhause', 'Home'] %}
+                  {% set station = state_station %}
+                {% endif %}
+              {% endif %}
+
+              {% set dist = states(base ~ '_bike_entfernung') %}
+
+              {% set ns.found = true %}
+
+          ### {{ station if station not in [none, '', 'unknown', 'unavailable']
+          else 'Station nicht verfügbar' }}
+
+
+          🚲 **Bikes:** {{ b.state }}
+
+              {% if dist not in ['unknown', 'unavailable', 'none', ''] %}
+          📍 **Entfernung:** {{ dist }} m
+              {% endif %}
+
+          ---
+            {% endif %}
+          {% endfor %}
+
+
+          {% if not ns.found %}
+
+          _Keine Bike-Daten gefunden._
+
+          {% endif %}
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: markdown
+        title: 🚴 E-Bikes
+        content: >
+          {% set ns = namespace(found=false) %}
+
+          {% set range_order = [
+            '111-120 km',
+            '101-110 km',
+            '91-100 km',
+            '81-90 km',
+            '71-80 km',
+            '61-70 km',
+            '51-60 km',
+            '41-50 km',
+            '31-40 km',
+            '21-30 km',
+            '11-20 km',
+            '1-10 km',
+            '0-10 km'
+          ] %}
+
+
+          {% for s in states.sensor | sort(attribute='name') %}
+            {% if s.entity_id.startswith('sensor.publibike_')
+              and (
+                s.entity_id.endswith('_ebike_tabelle')
+                or s.entity_id.endswith('_e_bike_tabelle')
+              )
+            %}
+
+              {% set rows = state_attr(s.entity_id, 'ebike_table') %}
+              {% if rows in [none, '', 'unknown', 'unavailable'] %}
+                {% set rows = state_attr(s.entity_id, 'e_bike_table') %}
+              {% endif %}
+
+              {% if rows not in [none, '', 'unknown', 'unavailable'] and rows | count > 0 %}
+                {% set ns.found = true %}
+                {% set printed = namespace(ids=[]) %}
+
+          ### {{ s.name
+              | replace('PubliBike ', '')
+              | replace(' E-Bike Tabelle', '')
+              | replace(' E Bike Tabelle', '')
+              | replace(' E-bike Tabelle', '')
+              | replace(' E-Bikes Tabelle', '')
+              | replace(' Tabelle', '')
+            }}
+
+          | 🚴 ID | Reichweite |
+
+          |---|---:|
+                {% for r in range_order %}
+                  {% for item in rows %}
+                    {% set reichweite = item.range if item.range is defined else item.reichweite if item.reichweite is defined else item['range'] if 'range' in item else item['reichweite'] if 'reichweite' in item else '' %}
+                    {% set velo_id = item.id if item.id is defined else item['id'] if 'id' in item else item.name if item.name is defined else item['name'] if 'name' in item else 'unbekannt' %}
+                    {% if reichweite == r %}
+          | **{{ velo_id }}** | {{ reichweite }} |
+                      {% set printed.ids = printed.ids + [velo_id|string] %}
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+
+                {% for item in rows %}
+                  {% set reichweite = item.range if item.range is defined else item.reichweite if item.reichweite is defined else item['range'] if 'range' in item else item['reichweite'] if 'reichweite' in item else '' %}
+                  {% set velo_id = item.id if item.id is defined else item['id'] if 'id' in item else item.name if item.name is defined else item['name'] if 'name' in item else 'unbekannt' %}
+                  {% if velo_id|string not in printed.ids %}
+          | **{{ velo_id }}** | {{ reichweite if reichweite else 'unbekannt' }}
+          |
+                  {% endif %}
+                {% endfor %}
+
+          ---
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+
+          {% if not ns.found %}
+
+          _Keine E-Bikes gefunden._
+
+          {% endif %}
+      - type: markdown
+        title: 🚲 Bikes
+        content: |
+          {% set ns = namespace(found=false) %}
+
+          {% for s in states.sensor | sort(attribute='name') %}
+            {% if s.entity_id.startswith('sensor.publibike_')
+              and s.entity_id.endswith('_bike_tabelle')
+              and not s.entity_id.endswith('_ebike_tabelle')
+              and not s.entity_id.endswith('_e_bike_tabelle')
+            %}
+
+              {% set rows = state_attr(s.entity_id, 'bike_table') %}
+
+              {% if rows not in [none, '', 'unknown', 'unavailable'] and rows | count > 0 %}
+                {% set ns.found = true %}
+
+          ### {{ s.name
+              | replace('PubliBike ', '')
+              | replace(' Bike Tabelle', '')
+              | replace(' Tabelle', '')
+            }}
+
+          | 🚲 ID |
+          |---|
+                {% for item in rows %}
+                  {% set velo_id = item.id if item.id is defined else item['id'] if 'id' in item else item.name if item.name is defined else item['name'] if 'name' in item else item %}
+          | **{{ velo_id }}** |
+                {% endfor %}
+
+          ---
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {% if not ns.found %}
+          _Keine Bikes gefunden._
+          {% endif %}
+  - type: custom:auto-entities
+    card:
+      type: map
+      title: 🗺️ Karte
+      auto_fit: true
+      default_zoom: 15
+      cluster: false
+      hours_to_show: 0
+    filter:
+      include:
+        - entity_id: sensor.publibike_*_naechstes_ebike
+        - entity_id: sensor.publibike_*_naechstes_e_bike
+        - entity_id: sensor.publibike_*_naechstes_bike
+        - entity_id: sensor.publibike_*_station
+      exclude:
+        - state: unavailable
+        - state: unknown
+        - state: none
+        - entity_id: sensor.publibike_*_api_status
+        - entity_id: sensor.publibike_*_ebikes
+        - entity_id: sensor.publibike_*_e_bikes
+        - entity_id: sensor.publibike_*_normale_bikes
+        - entity_id: sensor.publibike_*_ebike_tabelle
+        - entity_id: sensor.publibike_*_e_bike_tabelle
+        - entity_id: sensor.publibike_*_bike_tabelle
+    show_empty: false
+  - type: entities
+    title: 🧩 API / Status / Aktualisieren
+    show_header_toggle: false
+    state_color: true
+    entities:
+      - type: section
+        label: Status
+      - entity: sensor.publibike_zuhause_api_status
+        name: PubliBike Zuhause
+        secondary_info: last-updated
+      - type: attribute
+        entity: sensor.publibike_zuhause_api_status
+        attribute: last_update
+        name: Letzter Abgleich
+      - type: section
+        label: Aktion
+      - entity: button.publibike_zuhause_aktualisieren
+        name: PubliBike Zuhause aktualisieren
+        icon: mdi:refresh
